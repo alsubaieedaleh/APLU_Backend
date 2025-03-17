@@ -1,19 +1,23 @@
-# Stage 2: Production image
-FROM node:18-alpine
+FROM node:20-alpine
+
+# Enable corepack to use pnpm
+RUN corepack enable
+
+# Set the working directory inside the container to /app/backend
 WORKDIR /app
 
-# Set environment variable to increase Node's memory limit to 4GB
-ENV NODE_OPTIONS="--max-old-space-size=8192"
+# Copy only the package.json and pnpm-lock.yaml for efficient caching
+COPY backend/package.json backend/pnpm-lock.yaml ./
 
-# Copy only production dependencies
-COPY package*.json ./
-RUN pnpm ci --only=production
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Copy the built code from the builder stage
-COPY --from=builder /app/dist ./dist
+# Copy all other application files from the backend directory
+# Build the application
+RUN pnpm run build
 
-# Expose the port that your NestJS application listens on
+# Expose port 3000 for the application
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "dist/main.js"]
+# Start the application in production mode
+CMD ["pnpm", "run", "start:prod"]
