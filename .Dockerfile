@@ -3,7 +3,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Set environment variable to increase Node's memory limit to 4GB
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 # Copy only production dependencies
 COPY package*.json ./
